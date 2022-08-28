@@ -18,9 +18,9 @@ public class DelaySolver {
 
     /**
      * 判断主备是否存在延迟
-     * @return true：从库无延迟，false：从库有延迟，可以强制走主库
+     * @return
      */
-    public boolean checkDelay() {
+    public MysqlClient checkDelay() {
         try {
             for (MysqlClient slave : slaves) {
                 final int[] behindMaster = new int[1];
@@ -32,22 +32,21 @@ public class DelaySolver {
                 // 每个事务的binlog都会记录生成时间
                 // second_behind_master表示从库收到最新的binlog与系统当前时间的差值
                 if (behindMaster[0] == 0) {
-                    // TODO: 切换数据源
-                    return true;
+                    return slave;
                 }
             }
         } catch (SQLException throwable) {
             throwable.printStackTrace();
         }
-        return false;
+        return master;
     }
 
     /**
      * 等待主库位点
      * 适用于对于更新后立刻获取数据的场景
-     * @return true：从库无延迟，false：从库有延迟，可以强制走主库
+     * @return
      */
-    public boolean waitingLoci() {
+    public MysqlClient waitingLoci() {
         try {
             final String[] binlogFile = new String[1];
             final int[] binlogPosition = new int[1];
@@ -70,23 +69,22 @@ public class DelaySolver {
                 
                 // 如果返回值大于0，说明从库已经执行过这个位置的binlog了
                 if (pos[0] > 0) {
-                    // TODO: 切换数据源
-                    return true;
+                    return slave;
                 }
             }
             
         } catch (SQLException throwable) {
             throwable.printStackTrace();
         }
-        return false;
+        return master;
     }
 
     /**
      * 等GTID
      * 适用于对于更新后立刻获取数据的场景
-     * @return true：从库无延迟，false：从库有延迟，可以强制走主库
+     * @return
      */
-    public boolean waitingGtid() {
+    public MysqlClient waitingGtid() {
         try {
             final String[] gtid = new String[1];
             master.query("show master status", rs -> {
@@ -96,7 +94,7 @@ public class DelaySolver {
             
             if (gtid[0].isEmpty()) {
                 // 未开启GTID
-                return false;
+                return master;
             }
             
             for (MysqlClient slave : slaves) {
@@ -111,13 +109,13 @@ public class DelaySolver {
                 
                 if (res[0] == 0) {
                     // TODO: 切换数据源
-                    return true;
+                    return slave;
                 }
             }
         } catch (SQLException throwable) {
             throwable.printStackTrace();
         }
-        return false;
+        return master;
     }
     
 }
