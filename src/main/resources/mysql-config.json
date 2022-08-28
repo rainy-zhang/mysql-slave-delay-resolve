@@ -1,0 +1,16 @@
+{
+  "database": "ad_data",
+  "host": "127.0.0.1",
+  "port": 3306,
+  "username": "root",
+  "password": 12345678,
+  "slaves": [
+    {
+      "database": "ad_data_slave",
+      "host": "127.0.0.1",
+      "port": 3306,
+      "username": "root",
+      "password": 12345678
+    }
+  ]
+}
