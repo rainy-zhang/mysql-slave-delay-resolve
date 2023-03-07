@@ -20,14 +20,6 @@ public class MysqlClient {
 
     private volatile Connection connection;
 
-    public static List<MysqlClient> getSlaveServers(List<MysqlConfig> slaveConfigs) throws SQLException {
-        List<MysqlClient> slaveServers = new ArrayList<>(slaveConfigs.size());
-        for (MysqlConfig slaveConfig : slaveConfigs) {
-            slaveServers.add(new MysqlClient(slaveConfig));
-        }
-        return slaveServers;
-    }
-
     public MysqlClient(MysqlConfig config) throws SQLException {
         this(config.getHost(), config.getPort(), config.getDatabase(), config.getUsername(), config.getPassword());
     }
